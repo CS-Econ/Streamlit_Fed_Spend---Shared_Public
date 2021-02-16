@@ -62,11 +62,11 @@ if spending_type_var=='General': #General tab
         try:
             funds_received=funds_received[funds_received['display_name'].notnull()] #drop null values
             funds_received=funds_received.sort_values(by=['display_name'],ascending=True) #setting in descending order
-            funds_received=funds_received.rename(columns={'aggregated_amount':"Aggregated Amount","display_name":"County"}) #changing names
+            funds_received=funds_received.rename(columns={'aggregated_amount':"Aggregated Amount","per_capita":"Per Capita","display_name":"County"}) #changing names
             funds_received=funds_received[['Aggregated Amount','County']].set_index('County') #setting index
             st.write("Spending by County in the state of ",state_var)
             st.write("You are viewing spending dates between ",start_date_var," and ", end_date_var)            
-            st.table(funds_received.style.format({"Aggregated Amount": "${0:,.2f}"}))  #formatting words
+            st.table(funds_received.style.format({"Aggregated Amount": "${0:,.2f}","Per Capita": "${0:,.2f}"}))  #formatting words
             #st.table(funds_received[["Aggregated Amount","County"]].style.format({"Aggregated Amount": "${0:,.2f}"}))  #formatting words
     
             
