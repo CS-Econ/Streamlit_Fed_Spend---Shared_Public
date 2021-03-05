@@ -9,26 +9,53 @@ from datetime import date
 
 #Initial setup and title of Webapp
 st.title("Federal Spending Data")
-
-#setting spending type selector
+#setting spending type
 spending_type_var=st.sidebar.selectbox('Spending Type',('General','Disaster Emergency Funds'))
 
-
+#################################
+#General Tab
+#################################
 if spending_type_var=='General': #General tab
 
-    # Selection portion
-    state_dict={"Arkansas":"AR","Louisiana":"LA","Oklahoma":"OK","New Mexico":"NM","Texas":"TX"}
+    # Selection portion dictionaries
+    state_dict={"Arkansas":"AR","Louisiana":"LA","Mississippi":"MS","New Mexico":"NM","Texas":"TX"}
+    recipient_type_dict={"All Business Recipients":'category_business','Small Business':'small_business',"Other Than Small Business":"other_than_small_business",
+                        'Minority Owned Business':'minority_owned_business',"Sole Proprietorship":'sole_proprietorship',
+                        'Manufacturer of Goods':'manufacturer_of_goods',
+                        'Women Owned Business':'woman_owned_business',
+                        'Veteran Owned Business':'veteran_owned_business','Small Business':'small_business'}
+    #buttons
     state_var=st.sidebar.selectbox("State",(list(state_dict.keys())))
     start_date_var=st.sidebar.date_input('Start Date',datetime.date(2020, 1, 1))
     end_date_var=st.sidebar.date_input('End Date',datetime.date(2021, 1, 1))
-    
+    recipient_type_var=st.sidebar.multiselect('Choose a Business Type Recipient',(list(recipient_type_dict.keys())))
+    #################################################
+    ### Setting up the recipient_type_selection based on multi-criteria
+    recipient_type_selection=(recipient_type_var)
+    recipient_type_response=["None"] #Response that will be send to recipient_type_names (recipient_type_selection_activator)
+    #recipient_type_response_dict=""
+    recipient_type_selection_count=len(recipient_type_var)
+    if recipient_type_selection_count==0:   #this turns off the recipient selection if there is no selection
+        recipient_type_selection_activator=None 
+    if recipient_type_selection_count>=1: #this activates the selection for recipient selection
+        recipient_type_selection_activator="recipient_type_names"
+        i=0
+        while i<recipient_type_selection_count:
+            #getting the dictionary keys
+            recipient_type_dict_response=recipient_type_dict[recipient_type_var[i]]#response from the dictionary
+            recipient_type_response.append(recipient_type_dict_response)
+            i+=1
+             
 
 
+    ###################################
     # Setting up the General API  call   
     payload=  {"scope":"place_of_performance",
             "geo_layer":"county",
             "filters":{
                 "place_of_performance_locations":[{"country":"USA","state":state_dict[state_var]}],
+                #"recipient_type_names":['minority_owned_business',"woman_owned_business",'small_business'],           
+                recipient_type_selection_activator:recipient_type_response,
                 "time_period":[
                     {"start_date":str(start_date_var),"end_date":str(end_date_var)}]}
             }
@@ -60,13 +87,20 @@ if spending_type_var=='General': #General tab
     else:
         #show table
         try:
+        #funds_received['aggregated_amount']=(funds_received['aggregated_amount'].round(decimals=2)).apply(str) #turning into a string 
+        #funds_received['aggregated_amount']=funds_received['aggregated_amount'].astype(float).replace(',','.').astype(float)
+        #st.table(funds_received[['aggregated_amount','display_name']])
             funds_received=funds_received[funds_received['display_name'].notnull()] #drop null values
             funds_received=funds_received.sort_values(by=['display_name'],ascending=True) #setting in descending order
-            funds_received=funds_received.rename(columns={'aggregated_amount':"Aggregated Amount","per_capita":"Per Capita","display_name":"County"}) #changing names
-            funds_received=funds_received[['Aggregated Amount','County','Per Capita']].set_index('County') #setting index
+            funds_received=funds_received.rename(columns={'aggregated_amount':"Aggregated Amount","display_name":"County"}) #changing names
+            funds_received=funds_received[['Aggregated Amount','County']].set_index('County') #setting index
             st.write("Spending by County in the state of ",state_var)
-            st.write("You are viewing spending dates between ",start_date_var," and ", end_date_var)            
-            st.table(funds_received.style.format({"Aggregated Amount": "${0:,.2f}","Per Capita": "${0:,.2f}"}))  #formatting words
+            st.write("You are viewing spending dates between ",start_date_var," and ", end_date_var)
+            #specific section for recipient_selection >=1
+            if recipient_type_selection_count>=1:
+                empty_string=", "
+                st.write('You have selected the following business recipients: ',empty_string.join(recipient_type_var))            
+            st.table(funds_received.style.format({"Aggregated Amount": "${0:,.2f}"}))  #formatting words
             #st.table(funds_received[["Aggregated Amount","County"]].style.format({"Aggregated Amount": "${0:,.2f}"}))  #formatting words
     
             
@@ -75,11 +109,12 @@ if spending_type_var=='General': #General tab
 
 
 
+#########################################
 # Using the Disaster api section 
-
+#########################################
 if spending_type_var=='Disaster Emergency Funds':
     #selection options
-    state_dict={"Arkansas":"AR","Louisiana":"LA","Oklahoma":"OK","New Mexico":"NM","Texas":"TX"}
+    state_dict={"Arkansas":"AR","Louisiana":"LA","Mississippi":"MS","New Mexico":"NM","Texas":"TX"}
     state_var=st.sidebar.selectbox("State",(list(state_dict.keys())))
     def_codes_dict={"Coronavirus Preparedness and Response Supplemental Appropriations Act, 2020":"L",
                     "Families First Coronavirus Response Act":"M",
@@ -126,7 +161,7 @@ if spending_type_var=='Disaster Emergency Funds':
 #final notes
 
 
-st.sidebar.write('This page utilizes information from the USAspending.gov website to show federal spending within the states of Arkansas,Louisiana,Oklahoma,New Mexico and Texas.')
+st.sidebar.write('This page utilizes information from the USAspending.gov website to show federal spending within the states of Arkansas,Louisiana,Mississippi,New Mexico and Texas.')
 st.sidebar.markdown("Source:https://www.usaspending.gov")
 
 
