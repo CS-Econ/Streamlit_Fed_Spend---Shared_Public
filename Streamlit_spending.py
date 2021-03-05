@@ -28,7 +28,7 @@ if spending_type_var=='General': #General tab
     state_var=st.sidebar.selectbox("State",(list(state_dict.keys())))
     start_date_var=st.sidebar.date_input('Start Date',datetime.date(2020, 1, 1))
     end_date_var=st.sidebar.date_input('End Date',datetime.date(2021, 1, 1))
-    recipient_type_var=st.sidebar.multiselect('Choose Business Recipient Types',(list(recipient_type_dict.keys())))
+    recipient_type_var=st.sidebar.multiselect('Choose a Business Type Recipient',(list(recipient_type_dict.keys())))
     #################################################
     ### Setting up the recipient_type_selection based on multi-criteria
     recipient_type_selection=(recipient_type_var)
@@ -78,13 +78,13 @@ if spending_type_var=='General': #General tab
     today_info=date.today()
     today_info = today_info.strftime("%Y-%m-%d")
 
-    if  datetime.datetime.strptime(str(start_date_var),"%Y-%m-%d")<= datetime.datetime.strptime(str('2015-01-01'),"%Y-%m-%d"): #error for older date
+    if  datetime.datetime.strptime(str(start_date_var),"%Y-%m-%d")<= datetime.datetime.strptime(str('2015-01-01'),"%Y-%m-%d"):
         st.write("Invalid Start Date - Please include a date after 2015-01-01")
 
-    elif  datetime.datetime.strptime(str(end_date_var),"%Y-%m-%d")> datetime.datetime.strptime(str(today_info),"%Y-%m-%d"):#error for date after current date
+    elif  datetime.datetime.strptime(str(end_date_var),"%Y-%m-%d")> datetime.datetime.strptime(str(today_info),"%Y-%m-%d"):
         st.write("Invalid End Date - Please include a date prior to",today_info)
 
-    else: #valid entry
+    else:
         #show table
         try:
         #funds_received['aggregated_amount']=(funds_received['aggregated_amount'].round(decimals=2)).apply(str) #turning into a string 
@@ -96,23 +96,18 @@ if spending_type_var=='General': #General tab
             funds_received=funds_received[['Aggregated Amount','County']].set_index('County') #setting index
             st.write("Spending by County in the state of ",state_var)
             st.write("You are viewing spending dates between ",start_date_var," and ", end_date_var)
-            #specific section for recipient_selection >=1 
-            if recipient_type_selection_count>=1: 
-                if 'All Business Recipients' in recipient_type_var: #message for ALL Business recipients
-                    empty_string=", "
-                    st.write('You have selected All Business Recipients')
-                else: #Message for all other businesses
-                    empty_string=", "
-                    st.write('You have selected the following business recipients: ',empty_string.join(recipient_type_var))
-
-            st.table(funds_received.style.format({"Aggregated Amount": "${0:,.2f}"}))  #formatting words on table
+            #specific section for recipient_selection >=1
+            if recipient_type_selection_count>=1:
+                empty_string=", "
+                st.write('You have selected the following business recipients: ',empty_string.join(recipient_type_var))            
+            st.table(funds_received.style.format({"Aggregated Amount": "${0:,.2f}"}))  #formatting words
             #st.table(funds_received[["Aggregated Amount","County"]].style.format({"Aggregated Amount": "${0:,.2f}"}))  #formatting words
     
             
         except:
             st.write('Please make a selection')
 
-   
+
 
 #########################################
 # Using the Disaster api section 
@@ -168,13 +163,3 @@ if spending_type_var=='Disaster Emergency Funds':
 
 st.sidebar.write('This page utilizes information from the USAspending.gov website to show federal spending within the states of Arkansas,Louisiana,Mississippi,New Mexico and Texas.')
 st.sidebar.markdown("Source:https://www.usaspending.gov")
-
-
-
-
-
-
-
-
-
-
