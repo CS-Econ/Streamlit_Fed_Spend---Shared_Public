@@ -98,12 +98,12 @@ if spending_type_var=='General': #General tab
             st.write("You are viewing spending dates between ",start_date_var," and ", end_date_var)
             #specific section for recipient_selection >=1 
             if recipient_type_selection_count>=1: 
-                if 'All Business Recipients' in recipient_type_var: #message for ALL Business recipients
-                    empty_string=", "
-                    st.write('You have selected All Business Recipients')
-                else: #Message for all other businesses
-                    empty_string=", "
-                    st.write('You have selected the following business recipients: ',empty_string.join(recipient_type_var))
+                #if 'All Business Recipients' in recipient_type_var: #message for ALL Business recipients
+                #    empty_string=", "
+                #    st.write('You have selected All Business Recipients')
+                #else: #Message for all other businesses
+                empty_string=", "
+                st.write('You have selected the following business recipients: ',empty_string.join(recipient_type_var))
 
             st.table(funds_received.style.format({"Aggregated Amount": "${0:,.2f}"}))  #formatting words on table
             #st.table(funds_received[["Aggregated Amount","County"]].style.format({"Aggregated Amount": "${0:,.2f}"}))  #formatting words
