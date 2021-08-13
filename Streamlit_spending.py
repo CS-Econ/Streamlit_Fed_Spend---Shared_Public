@@ -8,7 +8,7 @@ from datetime import date
 
 
 #Initial setup and title of Webapp
-st.title("Federal Spending Data")
+st.title("Feederal Spending Data")
 #setting spending type
 spending_type_var=st.sidebar.selectbox('Spending Type',('General','Disaster Emergency Funds'))
 
